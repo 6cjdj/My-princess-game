@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Royal Kingdom 👑</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      min-height: 100vh;
+      background: #090814;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* إخفاء مشغل الصوت تماماً من الواجهة */
+    #bgMusic {
+      display: none;
+    }
+
+    .bg-palace {
+      position: fixed;
+      inset: 0;
+      background: 
+        linear-gradient(180deg, rgba(12, 10, 26, 0.75) 0%, rgba(5, 4, 12, 0.92) 100%),
+        url('https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+      filter: saturate(1.2);
+      z-index: -2;
+    }
+
+    .stars {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(2px 2px at 20px 30px, #ffd700, rgba(0,0,0,0)),
+                  radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                  radial-gradient(2px 2px at 50px 160px, #ffb6c1, rgba(0,0,0,0)),
+                  radial-gradient(2px 2px at 90px 40px, #ffd700, rgba(0,0,0,0));
+      background-size: 200px 200px;
+      opacity: 0.4;
+      z-index: -1;
+      animation: sparkle 4s infinite alternate;
+    }
+
+    @keyframes sparkle {
+      0% { opacity: 0.2; transform: translateY(0); }
+      100% { opacity: 0.6; transform: translateY(-10px); }
+    }
+
+    .container {
+      width: 90%;
+      max-width: 650px;
+      background: rgba(22, 18, 38, 0.85);
+      backdrop-filter: blur(16px);
+      border: 2px solid rgba(255, 215, 0, 0.35);
+      border-radius: 24px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(212, 175, 55, 0.2);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      margin: 20px auto;
+    }
+
+    .card {
+      display: none;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .card.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .crown-icon {
+      font-size: 3.8rem;
+      margin-bottom: 15px;
+      display: inline-block;
+      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.8));
+      animation: floatCrown 3s ease-in-out infinite;
+    }
+
+    @keyframes floatCrown {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    h1.welcome-title {
+      font-family: 'Cinzel', 'Cairo', serif;
+      font-size: 1.7rem;
+      color: #f7e089;
+      line-height: 1.6;
+      text-shadow: 0 2px 10px rgba(247, 224, 137, 0.4);
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    p.sub-text {
+      color: #d1c8e8;
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+      color: #0d0b18;
+      border: none;
+      padding: 14px 36px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      font-family: 'Cairo', sans-serif;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(252, 211, 77, 0.6);
+      background: linear-gradient(135deg, #fcd34d 0%, #c59b27 100%);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .q-step {
+      display: inline-block;
+      background: rgba(255, 215, 0, 0.15);
+      color: #ffd700;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      padding: 4px 16px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .q-title {
+      font-size: 1.45rem;
+      color: #ffffff;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 25px;
+    }
+
+    .option-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      color: #e5e0f5;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: right;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .option-btn:hover {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: rgba(255, 215, 0, 0.6);
+      color: #fff;
+      transform: translateX(-5px);
+    }
+
+    .option-btn.selected {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.3) 0%, rgba(212, 175, 55, 0.1) 100%);
+      border-color: #ffd700;
+      color: #ffd700;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    }
+
+    .results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 20px 0 30px 0;
+      text-align: right;
+    }
+
+    .result-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .result-q-num {
+      font-size: 0.85rem;
+      color: #ffd700;
+      font-weight: 700;
+    }
+
+    .result-ans {
+      font-size: 1.05rem;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .badge.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1.5px solid #22c55e;
+      color: #4ade80;
+    }
+
+    .badge.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1.5px solid #ef4444;
+      color: #f87171;
+    }
+
+    .heart-trigger-btn {
+      margin: 20px auto 0;
+      padding: 16px 40px;
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+      color: #fff;
+      box-shadow: 0 10px 30px rgba(225, 29, 72, 0.5);
+    }
+
+    .heart-shower {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .falling-heart {
+      position: absolute;
+      top: -50px;
+      animation: dropHeart linear infinite;
+      filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.8));
+    }
+
+    @keyframes dropHeart {
+      0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(360deg) scale(1.2); opacity: 0; }
+    }
+
+    .love-card {
+      background: linear-gradient(145deg, rgba(40, 15, 30, 0.95), rgba(20, 10, 25, 0.95));
+      border: 2px solid rgba(244, 63, 94, 0.5);
+      box-shadow: 0 0 40px rgba(225, 29, 72, 0.3);
+      padding: 35px 25px;
+      border-radius: 20px;
+      margin-top: 25px;
+      display: none;
+      animation: popUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes popUp {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .love-message {
+      font-size: 1.45rem;
+      color: #ffe4e6;
+      line-height: 1.9;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- مشغل الصوت المخفي -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="song.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="bg-palace"></div>
+  <div class="stars"></div>
+  <div class="heart-shower" id="heartShower"></div>
+
+  <div class="container">
+    
+    <!-- الواجهة الرئيسية -->
+    <div class="card active" id="card-welcome">
+      <div class="crown-icon">👑</div>
+      <h1 class="welcome-title">Welcome, my blonde princess, to your kingdom. We hope you enjoy your time 🏰✨</h1>
+      <p class="sub-text">أهلاً بكِ في مملكتكِ الخاصة، أعدَدتُ لكِ هذه اللعبة لمعرفة مدى تذكركِ لتفاصيلنا الجميلة! ❤️</p>
+      <button class="btn" onclick="startExperience('card-q1')">
+        انتقال للأسئلة ➔
+      </button>
+    </div>
+
+    <!-- السؤال الأول -->
+    <div class="card" id="card-q1">
+      <span class="q-step">السؤال الأول 1/4</span>
+      <h2 class="q-title">ما هو تاريخ أول رسالة بيننا؟ 📅</h2>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(1, '10/1/2026', false, this)">10/1/2026 <span>✨</span></button>
+        <button class="option-btn" onclick="selectOption(1, '24/3/2026', true, this)">24/3/2026 <span>✨</span></button>
+        <button class="option-btn" onclick="selectOption(1, '15/5/2026', false, this)">15/5/2026 <span>✨</span></button>
+        <button class="option-btn" onclick="selectOption(1, '01/2/2026', false, this)">01/2/2026 <span>✨</span></button>
+      </div>
+      <button class="btn" id="btn-next-1" disabled onclick="goToCard('card-q2')">السؤال التالي ➔</button>
+    </div>
+
+    <!-- السؤال الثاني -->
+    <div class="card" id="card-q2">
+      <span class="q-step">السؤال الثاني 2/4</span>
+      <h2 class="q-title">ما هي أول كلمة دلع ناديتكِ بها؟ 🩺</h2>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(2, 'أميرتي', false, this)">أميرتي <span>🌸</span></button>
+        <button class="option-btn" onclick="selectOption(2, 'دكتورتي', true, this)">دكتورتي <span>🩺</span></button>
+        <button class="option-btn" onclick="selectOption(2, 'قمرِي', false, this)">قمرِي <span>🌙</span></button>
+        <button class="option-btn" onclick="selectOption(2, 'جميلتي', false, this)">جميلتي <span>💖</span></button>
+      </div>
+      <button class="btn" id="btn-next-2" disabled onclick="goToCard('card-q3')">السؤال التالي ➔</button>
+    </div>
+
+    <!-- السؤال الثالث -->
+    <div class="card" id="card-q3">
+      <span class="q-step">السؤال الثالث 3/4</span>
+      <h2 class="q-title">ما هي أكثر كلمة مستخدمة أقولها لكِ؟ 💬</h2>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(3, 'اميرتي', true, this)">اميرتي <span>👑</span></button>
+        <button class="option-btn" onclick="selectOption(3, 'شقرتي', true, this)">شقرتي <span>👱‍♀️</span></button>
+        <button class="option-btn" onclick="selectOption(3, 'بنتي', true, this)">بنتي <span>🎀</span></button>
+        <button class="option-btn" onclick="selectOption(3, 'دبتي الشقرا', true, this)">دبتي الشقرا <span>🧸</span></button>
+      </div>
+      <button class="btn" id="btn-next-3" disabled onclick="goToCard('card-q4')">السؤال التالي ➔</button>
+    </div>
+
+    <!-- السؤال الرابع -->
+    <div class="card" id="card-q4">
+      <span class="q-step">السؤال الرابع 4/4</span>
+      <h2 class="q-title">ما هي أكثر صفة عجبتكِ فيّ؟ 🌟</h2>
+      <div class="options-grid">
+        <button class="option-btn" onclick="selectOption(4, 'صادق', false, this)">صادق <span>💎</span></button>
+        <button class="option-btn" onclick="selectOption(4, 'ملتزم بكلامه', false, this)">ملتزم بكلامه <span>📜</span></button>
+        <button class="option-btn" onclick="selectOption(4, 'صبور وعدم التخلي', false, this)">صبور وعدم التخلي <span>🛡️</span></button>
+        <button class="option-btn" onclick="selectOption(4, 'جميع ما ذكر صحيح', true, this)">جميع ما ذكر صحيح <span>💯</span></button>
+      </div>
+      <button class="btn" id="btn-next-4" disabled onclick="showResults()">عرض النتيجة ➔</button>
+    </div>
+
+    <!-- صفحة النتائج -->
+    <div class="card" id="card-results">
+      <div class="crown-icon">📊</div>
+      <h1 class="welcome-title">نتائج الإجابات 📜</h1>
+      <p class="sub-text">إليكِ ملخص إجاباتكِ يا أميرتي:</p>
+      
+      <div class="results-list" id="resultsContainer"></div>
+
+      <button class="btn" onclick="goToCard('card-final')">التالي ➔</button>
+    </div>
+
+    <!-- الواجهة الأخيرة والمفاجأة -->
+    <div class="card" id="card-final">
+      <div class="crown-icon">💖</div>
+      <h1 class="welcome-title">المفاجأة الأخيرة 🎁</h1>
+      <p class="sub-text">اضغطي على الزر في الوسط لتلقي رسالتكِ الملكية الخاصّة:</p>
+      
+      <button class="btn heart-trigger-btn" id="revealBtn" onclick="triggerLoveDeclaration()">
+        انقري هنا يا أميرتي ❤️
+      </button>
+
+      <div class="love-card" id="loveCard">
+        <div style="font-size: 3rem; margin-bottom: 15px;">🧸👑🌹</div>
+        <div class="love-message">
+          شكراً لكِ على كل شيء، أنتِ أعظم نعمة عندي أميرتي وابنتي الشقراء، بحبك ❤️
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const userAnswers = {};
+
+    function startExperience(nextCardId) {
+      const music = document.getElementById('bgMusic');
+      if (music) {
+        music.play().catch(error => {
+          console.log("تعذر تشغيل الصوت تلقائياً:", error);
+        });
+      }
+      goToCard(nextCardId);
+    }
+
+    function goToCard(cardId) {
+      document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+      const targetCard = document.getElementById(cardId);
+      if (targetCard) targetCard.classList.add('active');
+    }
+
+    function selectOption(qNum, value, isCorrect, element) {
+      const parentGrid = element.parentElement;
+      parentGrid.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+      
+      element.classList.add('selected');
+
+      userAnswers[qNum] = {
+        text: value,
+        isCorrect: isCorrect
+      };
+
+      const nextBtn = document.getElementById(`btn-next-${qNum}`);
+      if (nextBtn) nextBtn.disabled = false;
+    }
+
+    function showResults() {
+      const container = document.getElementById('resultsContainer');
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 4; i++) {
+        const ans = userAnswers[i] || { text: 'لم يتم الإجابة', isCorrect: false };
+        const item = document.createElement('div');
+        item.className = 'result-item';
+
+        const badgeClass = ans.isCorrect ? 'correct' : 'wrong';
+        const badgeIcon = ans.isCorrect ? '✓' : '✕';
+
+        item.innerHTML = `
+          <div class="result-info">
+            <span class="result-q-num">السؤال رقم (${i})</span>
+            <span class="result-ans">${ans.text}</span>
+          </div>
+          <div class="badge ${badgeClass}">${badgeIcon}</div>
+        `;
+        container.appendChild(item);
+      }
+
+      goToCard('card-results');
+    }
+
+    function triggerLoveDeclaration() {
+      const btn = document.getElementById('revealBtn');
+      const loveCard = document.getElementById('loveCard');
+      
+      btn.style.display = 'none';
+      loveCard.style.display = 'block';
+
+      const heartShower = document.getElementById('heartShower');
+      const heartsList = ['❤️', '💖', '💕', '🌹', '👑', '✨', '🧸'];
+      
+      for (let i = 0; i < 45; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'falling-heart';
+          heart.textContent = heartsList[Math.floor(Math.random() * heartsList.length)];
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+          heart.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+          heartShower.appendChild(heart);
+
+          setTimeout(() => { heart.remove(); }, 5000);
+        }, i * 120);
+      }
+    }
+  </script>
+</body>
+</html>
